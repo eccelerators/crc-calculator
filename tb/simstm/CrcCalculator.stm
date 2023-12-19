@@ -1,0 +1,110 @@
+-- ******************************************************************************
+-- 
+--                   /------o
+--             eccelerators
+--          o------/
+-- 
+--  This file is an Eccelerators GmbH sample project.
+-- 
+--  MIT License:
+--  Copyright (c) 2023 Eccelerators GmbH
+-- 
+--  Permission is hereby granted, free of charge, to any person obtaining a copy
+--  of this software and associated documentation files (the "Software"), to deal
+--  in the Software without restriction, including without limitation the rights
+--  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+--  copies of the Software, and to permit persons to whom the Software is
+--  furnished to do so, subject to the following conditions:
+-- 
+--  The above copyright notice and this permission notice shall be included in all
+--  copies or substantial portions of the Software.
+-- 
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+--  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+--  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+--  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+--  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+--  SOFTWARE.
+-- ******************************************************************************
+bus axi4lite 2
+var value 0
+
+include "../../src-gen/simstm/CrcCalculatorIfc.stm"
+
+Main:
+proc
+    log message 0 "CRC Calculator Tests"
+    
+    call $CrcCalculatorIfcInit
+
+    call $TestCrcDrRegister
+    call $TestCrcIdrRegister
+    call $TestCrcCrRegister
+    call $TestCrcInitRegister
+    call $TestCrcPolRegister
+
+	finish
+end proc
+
+TestCrcDrRegister:
+proc
+    log message 0 "TestCrcDrRegister"
+    
+    bus verify axi4lite 32 $CRC_DRAddress value 0x0 0xFFFFFFFF
+    
+    bus write axi4lite 32 $CRC_DRAddress 0x55
+    
+    bus verify axi4lite 32 $CRC_DRAddress value 0xFCD3FF90 0xFFFFFFFF
+
+    bus write axi4lite 32 $CRC_DRAddress 0x44
+    
+    bus verify axi4lite 32 $CRC_DRAddress value 0xB9A1037D 0xFFFFFFFF
+
+    bus write axi4lite 32 $CRC_DRAddress 0x33
+    
+    bus verify axi4lite 32 $CRC_DRAddress value 0xDAB98F5E 0xFFFFFFFF
+
+end proc
+
+TestCrcIdrRegister:
+proc
+    log message 0 "TestCrcIdrRegister"
+    
+    bus verify axi4lite 32 $CRC_IDRAddress value 0x0 0xFFFFFFFF
+    
+    bus write axi4lite 32 $CRC_IDRAddress 0xA5A5A5A5
+    
+    bus verify axi4lite 32 $CRC_IDRAddress value 0xA5A5A5A5 0xFFFFFFFF
+    
+end proc
+
+TestCrcCrRegister:
+proc
+    log message 0 "TestCrcCrRegister"
+    
+end proc
+
+TestCrcInitRegister:
+proc
+    log message 0 "TestCrcInitRegister"
+    
+    bus verify axi4lite 32 $CRC_INITAddress value 0x0 0xFFFFFFFF
+    
+    bus write axi4lite 32 $CRC_INITAddress 0x55AA55AA
+    
+    bus verify axi4lite 32 $CRC_INITAddress value 0x55AA55AA 0xFFFFFFFF
+    
+end proc
+
+TestCrcPolRegister:
+proc
+    log message 0 "TestCrcPolRegister"
+    
+    bus verify axi4lite 32 $CRC_POLAddress value 0x04C11DB7 0xFFFFFFFF
+    
+    bus write axi4lite 32 $CRC_POLAddress 0x0
+    
+    bus verify axi4lite 32 $CRC_POLAddress value 0x04C11DB7 0xFFFFFFFF
+    
+end proc
