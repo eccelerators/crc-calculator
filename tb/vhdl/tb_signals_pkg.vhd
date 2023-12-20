@@ -1,4 +1,32 @@
-library std;
+-- ******************************************************************************
+-- 
+--                   /------o
+--             eccelerators
+--          o------/
+-- 
+--  This file is an Eccelerators GmbH sample project.
+-- 
+--  MIT License:
+--  Copyright (c) 2023 Eccelerators GmbH
+-- 
+--  Permission is hereby granted, free of charge, to any person obtaining a copy
+--  of this software and associated documentation files (the "Software"), to deal
+--  in the Software without restriction, including without limitation the rights
+--  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+--  copies of the Software, and to permit persons to whom the Software is
+--  furnished to do so, subject to the following conditions:
+-- 
+--  The above copyright notice and this permission notice shall be included in all
+--  copies or substantial portions of the Software.
+-- 
+--  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+--  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+--  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+--  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+--  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+--  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+--  SOFTWARE.
+-- ******************************************************************************
 use std.textio.all;
 
 library ieee;
@@ -9,7 +37,7 @@ package tb_signals_pkg is
 
     type t_signals_in is record
         -- TODO: Add here all your inputs
-        in_signal : std_logic;
+        in_signal   : std_logic;
         in_signal_1 : std_logic_vector(7 downto 0);
         in_signal_2 : std_logic;
         in_signal_3 : std_logic;
@@ -17,7 +45,7 @@ package tb_signals_pkg is
 
     type t_signals_out is record
         -- TODO: Add here all your outputs
-        out_signal : std_logic;
+        out_signal   : std_logic;
         out_signal_1 : std_logic_vector(7 downto 0);
         out_signal_2 : std_logic;
         out_signal_3 : std_logic;
@@ -31,23 +59,23 @@ package tb_signals_pkg is
     function signals_in_init return t_signals_in;
     function signals_out_init return t_signals_out;
 
-    procedure signal_read(signal signals : in t_signals_in;
+    procedure signal_read(signal   signals       : in t_signals_in;
                           variable signal_number : in integer;
-                          variable value : out integer;
-                          variable valid : out integer);
+                          variable value         : out integer;
+                          variable valid         : out integer);
 
-    procedure signal_write(signal signals : out t_signals_out;
+    procedure signal_write(signal   signals       : out t_signals_out;
                            variable signal_number : in integer;
-                           variable value : in integer;
-                           variable valid : out integer);
+                           variable value         : in integer;
+                           variable valid         : out integer);
 
-    procedure get_interrupt_requests(signal signals : in t_signals_in;
+    procedure get_interrupt_requests(signal   signals            : in t_signals_in;
                                      variable interrupt_requests : out unsigned);
 
-    procedure resolve_interrupt_requests(variable interrupt_requests : in unsigned;
-                                         variable interrupt_in_service : in unsigned;
-                                         variable interrupt_number : out integer;
-                                         variable branch_to_interrupt : out boolean;
+    procedure resolve_interrupt_requests(variable interrupt_requests                        : in unsigned;
+                                         variable interrupt_in_service                      : in unsigned;
+                                         variable interrupt_number                          : out integer;
+                                         variable branch_to_interrupt                       : out boolean;
                                          variable branch_to_interrupt_label_std_txt_io_line : out line);
 
     procedure set_interrupt_in_service(variable interrupt_in_service : inout unsigned; variable interrupt_number : in integer);
@@ -63,7 +91,7 @@ package body tb_signals_pkg is
         variable signals : t_signals_in;
     begin
         -- TODO: Set here your init values
-        signals.in_signal := '0';
+        signals.in_signal   := '0';
         signals.in_signal_1 := (others => '0');
         signals.in_signal_2 := '0';
         signals.in_signal_3 := '0';
@@ -75,7 +103,7 @@ package body tb_signals_pkg is
         variable signals : t_signals_out;
     begin
         -- TODO: Set here your init values
-        signals.out_signal := '0';
+        signals.out_signal   := '0';
         signals.out_signal_1 := (others => '0');
         signals.out_signal_2 := '0';
         signals.out_signal_3 := '0';
@@ -83,13 +111,13 @@ package body tb_signals_pkg is
     end function;
 
     -- SimStm Mapping for input signals
-    procedure signal_read(signal signals : in t_signals_in;
+    procedure signal_read(signal   signals       : in t_signals_in;
                           variable signal_number : in integer;
-                          variable value : out integer;
-                          variable valid : out integer) is
+                          variable value         : out integer;
+                          variable valid         : out integer) is
         variable temp_var : std_logic_vector(31 downto 0);
     begin
-        valid := 1;
+        valid    := 1;
         temp_var := (others => '0');
 
         case signal_number is
@@ -110,13 +138,13 @@ package body tb_signals_pkg is
     end procedure;
 
     -- SimStm Mapping for output signals
-    procedure signal_write(signal signals : out t_signals_out;
+    procedure signal_write(signal   signals       : out t_signals_out;
                            variable signal_number : in integer;
-                           variable value : in integer;
-                           variable valid : out integer) is
+                           variable value         : in integer;
+                           variable valid         : out integer) is
         variable temp_var : std_logic_vector(31 downto 0);
     begin
-        valid := 1;
+        valid    := 1;
         temp_var := std_logic_vector(to_signed(value, 32));
 
         case signal_number is
@@ -136,7 +164,7 @@ package body tb_signals_pkg is
     end procedure;
 
     -- Map interrupts to interrupt requests
-    procedure get_interrupt_requests(signal signals : in t_signals_in;
+    procedure get_interrupt_requests(signal   signals            : in t_signals_in;
                                      variable interrupt_requests : out unsigned) is
     begin
         -- TODO: Connect in_signals used as interrupt to the interrupt_vector
@@ -145,20 +173,20 @@ package body tb_signals_pkg is
         wait for 0 ps;
     end procedure;
 
-    procedure resolve_interrupt_requests(variable interrupt_requests : in unsigned;
-                                         variable interrupt_in_service : in unsigned;
-                                         variable interrupt_number : out integer;
-                                         variable branch_to_interrupt : out boolean;
+    procedure resolve_interrupt_requests(variable interrupt_requests                        : in unsigned;
+                                         variable interrupt_in_service                      : in unsigned;
+                                         variable interrupt_number                          : out integer;
+                                         variable branch_to_interrupt                       : out boolean;
                                          variable branch_to_interrupt_label_std_txt_io_line : out line) is
-        variable empty_label : line := new string'("");
+        variable empty_label      : line               := new string'("");
         variable interrupt_labels : t_interrupt_labels := (
             -- TODO: Add here all your simstm interrupt entry procedure labels
             new string'("$InterruptB"),
             new string'("$InterruptA")
         );
     begin
-        interrupt_number := -1;
-        branch_to_interrupt := false;
+        interrupt_number                          := -1;
+        branch_to_interrupt                       := false;
         branch_to_interrupt_label_std_txt_io_line := empty_label;
 
         -- TODO: Adapt your interrupt priority and nesting logic
@@ -170,8 +198,8 @@ package body tb_signals_pkg is
             if interrupt_in_service = 0 then
                 for i in 0 to number_of_interrupts - 1 loop
                     if interrupt_requests(i) = '1' then
-                        interrupt_number := i;
-                        branch_to_interrupt := true;
+                        interrupt_number                          := i;
+                        branch_to_interrupt                       := true;
                         branch_to_interrupt_label_std_txt_io_line := interrupt_labels(i);
                     end if;
                 end loop;
