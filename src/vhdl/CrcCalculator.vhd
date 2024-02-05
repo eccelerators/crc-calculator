@@ -34,61 +34,74 @@ use ieee.numeric_std.all;
 use work.CrcCalculatorIfcPackage.all;
 
 entity CrcCalculator is
-    port(
-        Clk            : in  std_logic;
-        Rst            : in  std_logic;
-        Axi4LiteDown   : in  T_CrcCalculatorIfcAxi4LiteDown;
-        Axi4LiteUp     : out T_CrcCalculatorIfcAxi4LiteUp;
-        Axi4LiteAccess : out T_CrcCalculatorIfcAxi4LiteAccess;
-        Trace          : out T_CrcCalculatorIfcTrace
-    );
+	port(
+		Clk            : in  std_logic;
+		Rst            : in  std_logic;
+		Axi4LiteDown   : in  T_CrcCalculatorIfcAxi4LiteDown;
+		Axi4LiteUp     : out T_CrcCalculatorIfcAxi4LiteUp;
+		Axi4LiteAccess : out T_CrcCalculatorIfcAxi4LiteAccess;
+		Trace          : out T_CrcCalculatorIfcTrace
+	);
 end;
 
 architecture Behavioural of CrcCalculator is
 
-    signal InitialValue       : std_logic_vector(31 downto 0);
-    signal DataValue          : std_logic_vector(31 downto 0);
-    signal HasBeenInitialized : std_logic;
+	signal InitialValue       : std_logic_vector(31 downto 0);
+	signal HasBeenInitialized : std_logic;
+	signal CrcDataWritten     : std_logic_vector(31 downto 0);
 
-    signal CrcCalculatorBlkDown : T_CrcCalculatorIfcCrcCalculatorBlkDown;
-    signal CrcCalculatorBlkUp   : T_CrcCalculatorIfcCrcCalculatorBlkUp;
+	signal CrcCalculatorBlkDown : T_CrcCalculatorIfcCrcCalculatorBlkDown;
+	signal CrcCalculatorBlkUp   : T_CrcCalculatorIfcCrcCalculatorBlkUp;
+	signal CrcCalculatorResets  : T_CrcCalculatorIfcResets;
 
 begin
 
-    CrcCalculatorIfcAxi4Lite_i : entity work.CrcCalculatorIfcAxi4Lite
-        port map(
-            Clk                  => Clk,
-            Rst                  => Rst,
-            Axi4LiteDown         => Axi4LiteDown,
-            Axi4LiteUp           => Axi4LiteUp,
-            Axi4LiteAccess       => Axi4LiteAccess,
-            Trace                => Trace,
-            CrcCalculatorBlkDown => CrcCalculatorBlkDown,
-            CrcCalculatorBlkUp   => CrcCalculatorBlkUp
-        );
+	CrcCalculatorIfcAxi4Lite : entity work.CrcCalculatorIfcAxi4Lite
+		port map(
+			Clk                  => Clk,
+			Rst                  => Rst,
+			Axi4LiteDown         => Axi4LiteDown,
+			Axi4LiteUp           => Axi4LiteUp,
+			Axi4LiteAccess       => Axi4LiteAccess,
+			Trace                => Trace,
+			CrcCalculatorBlkDown => CrcCalculatorBlkDown,
+			CrcCalculatorBlkUp   => CrcCalculatorBlkUp,
+			Resets               => CrcCalculatorResets
+		);
 
-    crc_i : entity work.crc
-        port map(
-            crcIn  => InitialValue,
-            data   => CrcCalculatorBlkDown.CrcDataWritten,
-            crcOut => CrcCalculatorBlkUp.CrcDataToBeRead
-        );
+	CrcEngine : entity work.crc
+		port map(
+			crcIn  => InitialValue,
+			data   => CrcDataWritten,
+			crcOut => CrcCalculatorBlkUp.CrcDataToBeRead
+		);
 
-    CrcValueProvider : process(Clk, Rst) is
-    begin
-        if Rst = '1' then
-            InitialValue       <= (others => '0');
-            HasBeenInitialized <= '0';
-        elsif rising_edge(Clk) then
-            if CrcCalculatorBlkDown.WRegPulseCRC_DR = '1' then
-                if HasBeenInitialized = '0' then
-                    InitialValue       <= CrcCalculatorBlkDown.CrcInitialValue;
-                    HasBeenInitialized <= '1';
-                else
-                    InitialValue <= CrcCalculatorBlkUp.CrcDataToBeRead;
-                end if;
-            end if;
-        end if;
-    end process;
+	CrcController : process(Clk, Rst) is
+	begin
+		if Rst = '1' then
+			InitialValue                     <= (others => '0');
+			HasBeenInitialized               <= '0';
+			CrcCalculatorResets.CrcSoftReset <= '1';
+			CrcDataWritten                   <= (others => '0');
+		elsif rising_edge(Clk) then
+			if (CrcCalculatorBlkDown.SwReset = '1' and CrcCalculatorBlkDown.WTransPulseCRC_CR = '1') then
+				InitialValue                     <= (others => '0');
+				HasBeenInitialized               <= '0';
+				CrcCalculatorResets.CrcSoftReset <= '1';
+				CrcDataWritten                   <= (others => '0');
+			else
+				CrcCalculatorResets.CrcSoftReset <= '0';
+				if CrcCalculatorBlkDown.WRegPulseCRC_DR = '1' then
+					CrcDataWritten <= CrcCalculatorBlkDown.CrcDataWritten;
+					if HasBeenInitialized = '0' then
+						InitialValue       <= CrcCalculatorBlkDown.InitialValue;
+						HasBeenInitialized <= '1';
+					else
+						InitialValue <= CrcCalculatorBlkUp.CrcDataToBeRead;
+					end if;
+				end if;
+			end if;
+		end if;
+	end process;
 
 end;

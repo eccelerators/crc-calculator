@@ -39,8 +39,8 @@ proc
     call $CrcCalculatorIfcInit
 
     call $TestCrcDrRegister
+    call $TestCrcDrRegisterInitZero
     call $TestCrcIdrRegister
-    call $TestCrcCrRegister
     call $TestCrcInitRegister
     call $TestCrcPolRegister
 
@@ -51,19 +51,43 @@ TestCrcDrRegister:
 proc
     log message 0 "TestCrcDrRegister"
     
+    call $ResetCrc
     bus verify axi4lite 32 $CRC_DRAddress value 0x0 0xFFFFFFFF
     
     bus write axi4lite 32 $CRC_DRAddress 0x55
-    
-    bus verify axi4lite 32 $CRC_DRAddress value 0xFCD3FF90 0xFFFFFFFF
+    bus verify axi4lite 32 $CRC_DRAddress value 0x2268DF73 0xFFFFFFFF
 
     bus write axi4lite 32 $CRC_DRAddress 0x44
-    
-    bus verify axi4lite 32 $CRC_DRAddress value 0xB9A1037D 0xFFFFFFFF
+    bus verify axi4lite 32 $CRC_DRAddress value 0x936D125E 0xFFFFFFFF
 
     bus write axi4lite 32 $CRC_DRAddress 0x33
+    bus verify axi4lite 32 $CRC_DRAddress value 0x6FBB8FD4 0xFFFFFFFF
+
+    bus write axi4lite 32 $CRC_DRAddress 0x22
+    bus verify axi4lite 32 $CRC_DRAddress value 0x93581E7C 0xFFFFFFFF
+
+end proc
+
+TestCrcDrRegisterInitZero:
+proc
+    log message 0 "TestCrcDrRegisterInitZero"
     
-    bus verify axi4lite 32 $CRC_DRAddress value 0xDAB98F5E 0xFFFFFFFF
+    call $ResetCrc
+    
+    bus write axi4lite 32 $CRC_INITAddress 0x0
+    bus verify axi4lite 32 $CRC_DRAddress value 0x0 0xFFFFFFFF
+    
+    bus write axi4lite 32 $CRC_DRAddress 0x55
+    bus verify axi4lite 32 $CRC_DRAddress value 0xFCD3FF90 0xFFFFFFF
+    
+    bus write axi4lite 32 $CRC_DRAddress 0x44
+    bus verify axi4lite 32 $CRC_DRAddress value 0x09B032C8 0xFFFFFFF
+    
+    bus write axi4lite 32 $CRC_DRAddress 0x33
+    bus verify axi4lite 32 $CRC_DRAddress value 0xEB91B644 0xFFFFFFFF
+    
+    bus write axi4lite 32 $CRC_DRAddress 0x22
+    bus verify axi4lite 32 $CRC_DRAddress value 0x801CAAD6 0xFFFFFFFF
 
 end proc
 
@@ -72,29 +96,19 @@ proc
     log message 0 "TestCrcIdrRegister"
     
     bus verify axi4lite 32 $CRC_IDRAddress value 0x0 0xFFFFFFFF
-    
     bus write axi4lite 32 $CRC_IDRAddress 0xA5A5A5A5
-    
     bus verify axi4lite 32 $CRC_IDRAddress value 0xA5A5A5A5 0xFFFFFFFF
-    
-end proc
-
-TestCrcCrRegister:
-proc
-    log message 0 "TestCrcCrRegister"
-    
 end proc
 
 TestCrcInitRegister:
 proc
     log message 0 "TestCrcInitRegister"
     
-    bus verify axi4lite 32 $CRC_INITAddress value 0x0 0xFFFFFFFF
+    call $ResetCrc
     
+    bus verify axi4lite 32 $CRC_INITAddress value 0xFFFFFFFF 0xFFFFFFFF
     bus write axi4lite 32 $CRC_INITAddress 0x55AA55AA
-    
     bus verify axi4lite 32 $CRC_INITAddress value 0x55AA55AA 0xFFFFFFFF
-    
 end proc
 
 TestCrcPolRegister:
@@ -102,9 +116,12 @@ proc
     log message 0 "TestCrcPolRegister"
     
     bus verify axi4lite 32 $CRC_POLAddress value 0x04C11DB7 0xFFFFFFFF
-    
     bus write axi4lite 32 $CRC_POLAddress 0x0
-    
     bus verify axi4lite 32 $CRC_POLAddress value 0x04C11DB7 0xFFFFFFFF
-    
+end proc
+
+ResetCrc:
+proc
+    bus write axi4lite 32 $CRC_CRAddress 0x1
+    bus write axi4lite 32 $CRC_CRAddress 0x0
 end proc

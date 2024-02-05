@@ -2,3 +2,4 @@ tmp-gen/
 src-gen/
 .venv/
 .log
+.vscode

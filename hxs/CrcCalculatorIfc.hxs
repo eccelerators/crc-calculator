@@ -7,7 +7,7 @@
 // This file is an Eccelerators GmbH sample project.
 //
 // MIT License:
-// Copyright (c) 2023 Eccelerators GmbH
+// Copyright (c) 2024 Eccelerators GmbH
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,17 +31,15 @@ use Eccelerators.Library.Base.*;
 
 namespace Eccelerators.Library.IP
 {
-	@Generator('docs.file_type', 'ReStructured Text')
-	@Generator('c.header', 'structures')
 	@Generator('docs.file_header', 'none')
+	@Generator('docs.file_type', 'ReStructured Text')
 	@Generator('vhdl.testbench','simstm')
-	@Generator('simstm.header','advanced')
-    @Generator('vhdl.ipxact.wrapper', 'true')
+	@Generator('vhdl.ipxact.wrapper', 'true')
 	interface CrcCalculatorIfc
 	{
-		Name = "CRC Calculator Interface";
+		Name = "CRC-32 Calculator Interface";
 		Description = "
-			Interface containing a basic CRC calculator block.
+			Interface containing a basic CRC-32 calculator block.
 		";
 		AddressBusWidth = 16;
 		DataBusWidth = 32;
